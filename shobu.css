@@ -43,4 +43,6 @@
     justify-content: center;
     align-items: center;
     border-style: solid;
+    ondrop: drop(event);
+    ondragover: allowDrop(event);
 }
