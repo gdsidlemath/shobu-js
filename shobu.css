@@ -1,0 +1,46 @@
+.title {
+    width: 100%;
+    text-align: center;
+}
+
+.main-grid{
+    min-width: 800px;
+    min-height: 800px;
+    max-width: 1600px;
+    max-height: 1600px;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 4vw;
+    padding: 1vw;
+    width: 90vw;
+    height: 9ovw;
+    border-style: double;
+    margin: auto;
+}
+
+.piece{
+    height: 90%;
+    width: 90%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.board{
+    min-width: 372px;
+    min-height: 372px;
+    max-width: 744px;
+    max-height: 744px;
+    width: 42vw;
+    height: 42vw;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    margin: auto;
+    border-style: solid;
+}
+
+.space{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-style: solid;
+}
