@@ -9,7 +9,10 @@ function drag(ev) {
 function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
-    ev.target.appendChild(document.getElementById(data));
+    // make sure the piece stays on the correct board!
+    if (ev.target.id.substr(0,1) == data.substr(3, 1)) {
+        ev.target.appendChild(document.getElementById(data));
+    }
 }
 
 function setUpBoards() {
