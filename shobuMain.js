@@ -15,6 +15,22 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
         int_space_cond = int_space.children.length > 0;
         console.log("int space cond", int_space_cond);
     }
+    let move_condition = false;
+    let check_boards = false;
+    if ( passiveMove && !tempAggCheck ) {
+        let aggB = ( piece.board_number + 1 ) % 2;
+        aggBoard0 = aggB;
+        aggBoard1 = aggB + 2;
+        check_boards = ( board_condition && home_board_condition )
+        move_condition = checkPassive(piece, space, aggBoard0, aggBoard1);
+        int_next_space = null;
+        //move_condition = checkMove(piece.x, piece.y, space.x, space.y, 0, 0);
+    }
+    if ( aggressiveMove || tempAggCheck ) {
+        check_boards = ( board_condition && agg_board_condition )
+        move_condition = checkMove(piece.x, piece.y, space.x, space.y, prior_x, prior_y);
+        console.log("agg move check", move_condition);
+    }
     if ( ( !empty_condition || int_space_cond ) && ( aggressiveMove || tempAggCheck ) ) {
         opponent_condition = space.player_num - piece.player_num != 0;
         if ( diff_x < 2 && diff_y < 2 ) {
@@ -30,40 +46,43 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
                     clear_next_space_condition = true;
                 }
             }
-        }
-        if ( int_space_cond ) {
-            //let next_space_id = "space" + space.board_number.toString() + (space.x + move_direction_x).toString() + (space.y + move_direction_y).toString();
-            let int_next_id = "space" + space.board_number.toString() + (space.x + Math.sign(move_direction_x) * Math.floor(diff_x/2)).toString() + (space.y + Math.sign(move_direction_y) * Math.floor(diff_y/2)).toString();
-            console.log("next space id", int_next_id);
-            //console.log("int space id", int_space_id);
-            int_next_space = document.getElementById(int_next_id);
-            //int_space = document.getElementById(int_space_id);
-            console.log("found next space", int_next_space);
-            //console.log("found int space", int_space);
-            if ( int_next_space === null ) { //&& int_space === null ) {
-                push_off = true;
-                clear_next_space_condition = true;
+        } else {
+            if ( int_space_cond ) {
+                if ( !empty_condition ) {
+                    clear_next_space_condition = false;
+                } else {
+                    //let next_space_id = "space" + space.board_number.toString() + (space.x + move_direction_x).toString() + (space.y + move_direction_y).toString();
+                    let int_next_id = "space" + space.board_number.toString() + (space.x + Math.sign(move_direction_x) * Math.floor(diff_x/2)).toString() + (space.y + Math.sign(move_direction_y) * Math.floor(diff_y/2)).toString();
+                    console.log("next space id", int_next_id);
+                    //console.log("int space id", int_space_id);
+                    int_next_space = document.getElementById(int_next_id);
+                    //int_space = document.getElementById(int_space_id);
+                    console.log("found next space", int_next_space);
+                    //console.log("found int space", int_space);
+                    if ( int_next_space === null ) { //&& int_space === null ) {
+                        push_off = true;
+                        clear_next_space_condition = true;
+                    } else {
+                        if ( int_next_space.children.length < 1 ) //&& int_space.children.length < 1 ) {
+                            clear_next_space_condition = true;
+                    }
+                }
             } else {
-                if ( int_next_space.children.length < 1 ) //&& int_space.children.length < 1 ) {
+                let next_space_id = "space" + space.board_number.toString() + (space.x + move_direction_x).toString() + (space.y + move_direction_y).toString();
+                console.log("next space id", next_space_id);
+                next_space = document.getElementById(next_space_id);
+                console.log("found next space", next_space);
+                if ( next_space === null ) {
+                    push_off = true;
                     clear_next_space_condition = true;
+                } else {
+                    if ( next_space.children.length < 1 ) {
+                        clear_next_space_condition = true;
+                    }
+                }
             }
         }
         // NEED SOMETHING TO COVER MOVING 2X WITH A STONE IN BETWEEN
-    }
-    let move_condition = false;
-    let check_boards = false;
-    if ( passiveMove && !tempAggCheck ) {
-        let aggB = ( piece.board_number + 1 ) % 2;
-        aggBoard0 = aggB;
-        aggBoard1 = aggB + 2;
-        check_boards = ( board_condition && home_board_condition )
-        move_condition = checkPassive(piece, space, aggBoard0, aggBoard1);
-        //move_condition = checkMove(piece.x, piece.y, space.x, space.y, 0, 0);
-    }
-    if ( aggressiveMove || tempAggCheck ) {
-        check_boards = ( board_condition && agg_board_condition )
-        move_condition = checkMove(piece.x, piece.y, space.x, space.y, prior_x, prior_y);
-        console.log("agg move check", move_condition);
     }
     console.log("check board", check_boards);
     console.log("empty?", empty_condition);
@@ -97,6 +116,11 @@ function checkLegal(diff_x, diff_y) {
 function checkMove(px, py, sx, sy, rx, ry) {
     let move_x = sx - px;
     let move_y = sy - py;
+    let new_px = px + move_x;
+    let new_py = py + move_y;
+    if ( new_px < 0 || new_px > 3 || new_py < 0 || new_py > 3 ) {
+        return false;
+    }
     let diff_x = Math.abs(move_x);
     let diff_y = Math.abs(move_y);
     if ( rx > 0 || ry > 0 ){
@@ -209,8 +233,10 @@ function movePiece(piece, space) {
                 if ( aggressiveMove ) {
                     int_piece = int_space.children[0];
                     int_space.removeChild(int_piece);
-                    int_next_space.appendChild(int_piece);
-                    int_next_space = null;
+                    if ( !push_off ) {
+                        int_next_space.appendChild(int_piece);
+                        int_next_space = null;
+                    }
                 }
                 space.appendChild(piece);
             } else {
@@ -361,7 +387,40 @@ function changePlayer() {
 }
 
 function checkBoards() {
-
+    const bcheck = (elem) => elem === 0;
+    let p0_arr = [];
+    let p1_arr = [];
+    for (var b=0; b < 4; b++) {
+        let board = document.getElementById("board" + b.toString());
+        let p0_sum = 0;
+        let p1_sum = 0;
+        for (var i=0; i < 4; i++) {
+            for (var j=0; j < 4; j++) {
+                let space = document.getElementById("space" + b.toString() + i.toString() + j.toString());
+                if ( space.children.length > 0 ) {
+                    if ( space.children[0].player_num == 0 ) {
+                        p0_sum += 1;
+                    } else {
+                        p1_sum += 1;
+                    }
+                }
+            }
+        }
+        p0_arr.push(p0_sum);
+        p1_arr.push(p1_sum);
+    }
+    p0_check = p0_arr.some(bcheck);
+    p1_check = p1_arr.some(bcheck);
+    if ( p0_check ) {
+        document.getElementById("buttons").innerHTML = "<h2> White Wins! </h2>";
+        whiteMove = false;
+        blackMove = false;
+    }
+    if ( p1_check ) {
+        document.getElementById("buttons").innerHTML = "<h2> Black Wins! </h2>";
+        whiteMove = false;
+        blackMove = false;
+    }
 }
 
 let whiteMove = false;
