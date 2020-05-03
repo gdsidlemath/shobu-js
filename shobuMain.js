@@ -1,4 +1,5 @@
 function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
+    if ( !tempAggCheck ) { console.log("*** BEGIN MOVE CHECK ***"); }
     let home_board_condition = ( piece.board_number == homeBoard0 || piece.board_number == homeBoard1 );
     let agg_board_condition = ( piece.board_number == aggBoard0 || piece.board_number == aggBoard1 );
     let board_condition = ( space.board_number == piece.board_number );
@@ -13,7 +14,7 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
         let int_space_id = "space" + space.board_number.toString() + (piece.x + Math.sign(move_direction_x) * Math.floor(diff_x/2)).toString() + (piece.y + Math.sign(move_direction_y) * Math.floor(diff_y/2)).toString();
         int_space = document.getElementById(int_space_id);
         int_space_cond = int_space.children.length > 0;
-        console.log("int space cond", int_space_cond);
+        if ( aggressiveMove) { console.log(int_space.id); }
     }
     let move_condition = false;
     let check_boards = false;
@@ -29,15 +30,15 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
     if ( aggressiveMove || tempAggCheck ) {
         check_boards = ( board_condition && agg_board_condition )
         move_condition = checkMove(piece.x, piece.y, space.x, space.y, prior_x, prior_y);
-        console.log("agg move check", move_condition);
+        if ( aggressiveMove ) { console.log("agg move check", move_condition); }
     }
     if ( ( !empty_condition || int_space_cond ) && ( aggressiveMove || tempAggCheck ) ) {
         opponent_condition = space.player_num - piece.player_num != 0;
         if ( diff_x < 2 && diff_y < 2 ) {
             let next_space_id = "space" + space.board_number.toString() + (space.x + move_direction_x).toString() + (space.y + move_direction_y).toString();
-            console.log("next space id", next_space_id);
+            //console.log("next space id", next_space_id);
             next_space = document.getElementById(next_space_id);
-            console.log("found next space", next_space);
+            //console.log("found next space", next_space);
             if ( next_space === null ) {
                 push_off = true;
                 clear_next_space_condition = true;
@@ -52,12 +53,13 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
                     clear_next_space_condition = false;
                 } else {
                     //let next_space_id = "space" + space.board_number.toString() + (space.x + move_direction_x).toString() + (space.y + move_direction_y).toString();
+                    console.log(space.id, diff_x, diff_x);
                     let int_next_id = "space" + space.board_number.toString() + (space.x + Math.sign(move_direction_x) * Math.floor(diff_x/2)).toString() + (space.y + Math.sign(move_direction_y) * Math.floor(diff_y/2)).toString();
-                    console.log("next space id", int_next_id);
+                    // console.log("next space id", int_next_id);
                     //console.log("int space id", int_space_id);
                     int_next_space = document.getElementById(int_next_id);
                     //int_space = document.getElementById(int_space_id);
-                    console.log("found next space", int_next_space);
+                    // console.log("found next space", int_next_space);
                     //console.log("found int space", int_space);
                     if ( int_next_space === null ) { //&& int_space === null ) {
                         push_off = true;
@@ -68,33 +70,41 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
                     }
                 }
             } else {
-                let next_space_id = "space" + space.board_number.toString() + (space.x + move_direction_x).toString() + (space.y + move_direction_y).toString();
-                console.log("next space id", next_space_id);
-                next_space = document.getElementById(next_space_id);
-                console.log("found next space", next_space);
-                if ( next_space === null ) {
-                    push_off = true;
-                    clear_next_space_condition = true;
-                } else {
-                    if ( next_space.children.length < 1 ) {
+                if ( !empty_condition ) {
+                    let next_space_id = "space" + space.board_number.toString() + (space.x + Math.sign(move_direction_x) * Math.floor(diff_x/2)).toString() + (space.y + Math.sign(move_direction_y) * Math.floor(diff_y/2)).toString();
+                    // console.log("next space id", next_space_id);
+                    next_space = document.getElementById(next_space_id);
+                    // console.log("found next space", next_space);
+                    if ( next_space === null ) {
+                        push_off = true;
                         clear_next_space_condition = true;
+                    } else {
+                        if ( next_space.children.length < 1 ) {
+                            clear_next_space_condition = true;
+                        }
                     }
+                } else {
+                    clear_next_space_condition = true;
                 }
             }
         }
         // NEED SOMETHING TO COVER MOVING 2X WITH A STONE IN BETWEEN
     }
-    console.log("check board", check_boards);
-    console.log("empty?", empty_condition);
-    console.log("oppo", opponent_condition);
-    console.log("next space?", clear_next_space_condition);
-    console.log("ok move?", move_condition);
-    console.log("pushing off?", push_off);
-    if ( clear_next_space_condition && !push_off ) {
-        console.log("next space id", next_space.id);
-    }
     let legal_move = check_boards && ( empty_condition || ( opponent_condition && clear_next_space_condition ) ) && move_condition;
-    console.log("legal?", legal_move);
+    if ( !tempAggCheck ) {
+        console.log("check board", check_boards);
+        console.log("empty?", empty_condition);
+        console.log("oppo", opponent_condition);
+        console.log("next space?", clear_next_space_condition);
+        console.log("int space cond", int_space_cond);
+        console.log("ok move?", move_condition);
+        console.log("pushing off?", push_off);
+        if ( clear_next_space_condition && !push_off ) {
+            console.log("next space id", next_space.id);
+        }
+        console.log("legal?", legal_move);
+        console.log("**** END MOVE CHECK ****", piece.id, space.id);
+    }
     return legal_move;
 }
 
@@ -145,12 +155,12 @@ function getAllBoardSpaces(board_num) {
             space_list.push(space);
         }
     }
-    console.log(space_list);
+    //console.log(space_list);
     return space_list;
 }
 
 function checkPassive(piece, space, ag0, ag1) {
-    console.log(space.x, space.y)
+    console.log("!!! BEGIN PASSIVE MOVE CHECK !!!", piece.id, space.id);
     let p_num = piece.player_num;
     let aggBoard0Elem = document.getElementById("board" + ag0.toString());
     let aggBoard1Elem = document.getElementById("board" + ag1.toString());
@@ -159,24 +169,21 @@ function checkPassive(piece, space, ag0, ag1) {
     let ag0spaces = getAllBoardSpaces(ag0);
     let agB1Children = aggBoard1Elem.children;
     let ag1spaces = getAllBoardSpaces(ag1);
-    console.log(agB0Children);
-    console.log(agB1Children);
+    //console.log(agB0Children);
+    //console.log(agB1Children);
     const bcheck = (elem) => elem === true;
     var c0;
-    var ind0 = 0;
     for (c0 = 0; c0 < agB0Children.length; c0 ++) {
         let child = agB0Children[c0].children;
         if ( child.length > 0 && child[0].player_num == p_num ) {
-            console.log(child[0].id);
+            //console.log(child[0].id);
             for (var a0 = 0; a0 < ag0spaces.length; a0++) {
                 let diff_x = Math.abs(child[0].x - ag0spaces[a0].x);
                 let diff_y = Math.abs(child[0].y - ag0spaces[a0].y);
                 if ( checkLegal(diff_x, diff_y) ) {
                     let c_legal = checkIfPieceCanMoveHere(child[0], ag0spaces[a0], true);
-                    console.log(child[0].id, c_legal);
+                    //console.log(child[0].id, c_legal);
                     legal_array.push(c_legal);
-                    ind0 += 1;
-                    console.log(ind0);
                 }
             }
         }
@@ -190,7 +197,6 @@ function checkPassive(piece, space, ag0, ag1) {
                 let diff_y = Math.abs(child[0].y - ag1spaces[a1].y);
                 if ( checkLegal(diff_x, diff_y) ) {
                     let c_legal = checkIfPieceCanMoveHere(child[0], ag0spaces[a1], true);
-                    console.log(child[0].id, c_legal);
                     legal_array.push(c_legal);
                     legal_check = legal_array.some(bcheck);
                 }
@@ -204,6 +210,8 @@ function checkPassive(piece, space, ag0, ag1) {
 }
 
 function movePiece(piece, space) {
+    console.log(" ")
+    console.log("^^^^ BEGIN MOVE PIECE ^^^^", piece.id, space.id);
     if ( blackTop ) {
         if ( blackMove ) {
             homeBoard0 = 0;
@@ -236,6 +244,8 @@ function movePiece(piece, space) {
                     if ( !push_off ) {
                         int_next_space.appendChild(int_piece);
                         int_next_space = null;
+                    } else {
+                        push_off = false;
                     }
                 }
                 space.appendChild(piece);
@@ -262,13 +272,13 @@ function movePiece(piece, space) {
                 prior_y = 0;
             }
             changeMoves();
-            console.log(moveCount);
+            //console.log(moveCount);
             piece.x = space.x;
             piece.y = space.y;
             space.stone = piece;
         }
     }
-    moveDone = true;
+    checkBoards();
 }
 
 function changeMoves() {
@@ -443,7 +453,6 @@ let int_space = null;
 let int_space_cond = false;
 showButtons();
 setUpBoards();
-moveDone = true;
 
 document.addEventListener("dragstart", function(event) {
     event.dataTransfer.setData("text", event.target.id);
@@ -460,3 +469,19 @@ document.addEventListener("drop", function(event) {
     movePiece(piece, space);
 });
 
+function showRules() {
+    let content = "How to Play Shobu: \n \n" +
+        "Shobu is played alternating turns between white and black players. \n \n" +
+        "Each turn consists of two moves, in which a stone may move up to two spaces " +
+        "in any direction, up, down, left, right, or diagnally. The two moves in " +
+        "each turn are the PASSIVE and AGGRESSIVE moves. \n \n" +
+        "The passive move occurs on one of the players two home boards (the closest " +
+        "boards to the player). The aggressive move occurs on one of the two boards " +
+        "of the opposite color of the passive move. During a passive " +
+        "move, the stone that is being moved may not push a stone of the opposing " +
+        "player, but during an aggressive move an opponents stone may be pushed into " +
+        "an open space, or off the board. \n \n" +
+        "The game ends when ONE board is cleared of a players stones. The player with " +
+        "stones remaining on the board is the winner.";
+    alert(content);
+}
