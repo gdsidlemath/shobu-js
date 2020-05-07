@@ -25,6 +25,7 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
         check_boards = ( board_condition && home_board_condition )
         move_condition = checkPassive(piece, space, aggBoard0, aggBoard1);
         int_next_space = null;
+        clear_next_space_condition = true;
         //move_condition = checkMove(piece.x, piece.y, space.x, space.y, 0, 0);
     }
     if ( aggressiveMove || tempAggCheck ) {
@@ -59,16 +60,23 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
                     //console.log("int space id", int_space_id);
                     int_next_space = document.getElementById(int_next_id);
                     //int_space = document.getElementById(int_space_id);
-                    // console.log("found next space", int_next_space);
+                    console.log("found next space", int_next_space);
                     //console.log("found int space", int_space);
-                    if ( int_next_space === null ) { //&& int_space === null ) {
+                    clear_next_space_condition = false;
+                    console.log(clear_next_space_condition);
+                    if ( int_next_space === null ) { //&& int_space === null )
+                        console.log("it says next space is null!");
                         push_off = true;
                         clear_next_space_condition = true;
                     } else {
-                        if ( int_next_space.children.length < 1 ) //&& int_space.children.length < 1 ) {
+                        if ( int_next_space.children.length < 1 ) {//&& int_space.children.length < 1 ) {
+                            console.log("next space isn't null but has no children");
                             clear_next_space_condition = true;
+                        }
                     }
+                    console.log(clear_next_space_condition);
                 }
+                console.log("clear next space first", clear_next_space_condition);
             } else {
                 if ( !empty_condition ) {
                     let next_space_id = "space" + space.board_number.toString() + (space.x + Math.sign(move_direction_x) * Math.floor(diff_x/2)).toString() + (space.y + Math.sign(move_direction_y) * Math.floor(diff_y/2)).toString();
@@ -90,18 +98,18 @@ function checkIfPieceCanMoveHere(piece, space, tempAggCheck) {
         }
         // NEED SOMETHING TO COVER MOVING 2X WITH A STONE IN BETWEEN
     }
-    let legal_move = check_boards && ( empty_condition || ( opponent_condition && clear_next_space_condition ) ) && move_condition;
+    let legal_move = check_boards && ( ( ( empty_condition && !int_space_cond ) || ( empty_condition && int_space_cond && clear_next_space_condition ) )  || ( opponent_condition && clear_next_space_condition ) ) && move_condition;
     if ( !tempAggCheck ) {
         console.log("check board", check_boards);
         console.log("empty?", empty_condition);
         console.log("oppo", opponent_condition);
-        console.log("next space?", clear_next_space_condition);
+        console.log("next space clear?", clear_next_space_condition);
         console.log("int space cond", int_space_cond);
         console.log("ok move?", move_condition);
         console.log("pushing off?", push_off);
-        if ( clear_next_space_condition && !push_off ) {
-            console.log("next space id", next_space.id);
-        }
+        //if ( clear_next_space_condition && !push_off ) {
+        //    console.log("next space id", next_space.id);
+        //}
         console.log("legal?", legal_move);
         console.log("**** END MOVE CHECK ****", piece.id, space.id);
     }
